@@ -1,20 +1,20 @@
 {
   "name": "Only Cache Cocktails",
   "short_name": "OnlyCache",
-  "start_url": ".",
-  "scope": ".",
+  "start_url": "https://gerson1120.github.io/onlyCache/",
+  "scope": "https://gerson1120.github.io/onlyCache/",
   "display": "standalone",
   "background_color": "#1A202C",
   "theme_color": "#4A90E2",
   "description": "Una PWA que usa solo caché para el App Shell y una estrategia network-first con fallback para la API de cócteles.",
   "icons": [
     {
-      "src": "./images/icons/192.png",
+      "src": "https://gerson1120.github.io/onlyCache/images/icons/192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./images/icons/512.png",
+      "src": "https://gerson1120.github.io/onlyCache/images/icons/512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
