@@ -1,0 +1,138 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Poppins', sans-serif;
+  background: #f4f7fb;
+  color: #333;
+}
+
+.app-header {
+  background: linear-gradient(135deg, #6b0072, #ff0000);
+  color: white;
+  text-align: center;
+  padding: 1rem 0.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.app-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.app-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.search-section {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 1.5rem;
+}
+
+.search-section input {
+  flex: 1;
+  padding: 0.8rem;
+  border: 2px solid #ff0000;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-section input:focus {
+  border-color: #6b0072;
+  box-shadow: 0 0 6px rgba(111, 0, 98, 0.4);
+}
+
+.search-section button {
+  background: linear-gradient(135deg, #6b0072, #ff0000);
+  color: white;
+  border: none;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-section button:hover {
+  background: #ff0000;
+}
+
+.result-section {
+  width: 100%;
+  max-width: 600px;
+}
+
+.placeholder-text {
+  text-align: center;
+  color: #777;
+  font-size: 1rem;
+}
+
+.cocktail-card {
+  background: white;
+  border-radius: 15px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  animation: fadeIn 0.3s ease;
+}
+
+.cocktail-card img {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 0.8rem;
+}
+
+.cocktail-card h2 {
+  font-size: 1.2rem;
+  color: #ff00fb;
+  margin-bottom: 0.4rem;
+}
+
+.cocktail-card p {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #555;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 0.8rem;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .search-section {
+    flex-direction: column;
+  }
+
+  .search-section button {
+    width: 100%;
+  }
+
+  .app-header h1 {
+    font-size: 1.3rem;
+  }
+}
