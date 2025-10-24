@@ -1,8 +1,8 @@
 {
   "name": "Only Cache Cocktails",
   "short_name": "OnlyCache",
-  "start_url": ".",
-  "scope": ".",
+  "start_url": "/onlyCache/",
+  "scope": "/onlyCache/",
   "display": "standalone",
   "background_color": "#1A202C",
   "theme_color": "#4A90E2",
