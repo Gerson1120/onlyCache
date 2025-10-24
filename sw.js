@@ -1,64 +1,71 @@
-// --- Nuevas constantes de configuración ---
-const REPO_NAME = 'onlyCache'; 
-const BASE_PATH = `/${REPO_NAME}`; 
-// ------------------------------------------
+const CACHE_NAME = 'cocktail-pwa-v3';
+const DYNAMIC_CACHE = 'cocktail-dynamic-v1';
 
+console.log('PWA: Service Worker iniciado.');
+
+const appShellAssets = [
+    './',
+    './index.html',
+    './main.js',
+    './styles/main.css',
+    './scripts/app.js'
+];
+
+const OFFLINE_COCKTAIL_JSON = {
+    drinks: [{
+        idDrink: "00000",
+        strDrink: "¡Sin Conexión!",
+        strTags: "FALLBACK",
+        strCategory: "Desconectado",
+        strInstructions: "No pudimos obtener resultados. Intenta conectarte de nuevo.",
+        strDrinkThumb: "https://via.placeholder.com/200x300?text=OFFLINE",
+        strIngredient1: "Service Worker",
+        strIngredient2: "Fallback JSON"
+    }]
+};
+
+self.addEventListener('install', event => {
+    console.log('[SW] Instalando y precacheando App Shell...');
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => cache.addAll(appShellAssets))
+            .then(() => self.skipWaiting())
+    );
+});
+
+self.addEventListener('activate', event => {
+    console.log('[SW] Activado. Limpiando caches viejos...');
+    event.waitUntil(
+        caches.keys().then(keys => {
+            return Promise.all(
+                keys
+                    .filter(key => key !== CACHE_NAME && key !== DYNAMIC_CACHE)
+                    .map(key => caches.delete(key))
+            );
+        }).then(() => self.clients.claim())
+    );
+});
 
 self.addEventListener('fetch', event => {
     const requestUrl = new URL(event.request.url);
     
     console.log('[SW] Interceptando:', requestUrl.href);
 
-    // --- Lógica para normalizar la ruta del App Shell (manejo de /onlyCache/) ---
+    const isAppShellRequest = appShellAssets.some(asset =>
+        requestUrl.pathname === asset || requestUrl.pathname === asset.substring(1)
+    );
 
-    let normalizedPath = requestUrl.pathname;
-    
-    // 1. Eliminar el prefijo del repositorio de la ruta solicitada
-    if (normalizedPath.startsWith(BASE_PATH)) {
-        normalizedPath = normalizedPath.substring(BASE_PATH.length);
-    }
-    
-    // 2. Normalizar la ruta raíz
-    if (normalizedPath === '/' || normalizedPath === '') {
-        normalizedPath = './';
-    } else if (normalizedPath.startsWith('/')) {
-        // Eliminar el '/' inicial (ej: '/index.html' -> 'index.html')
-        normalizedPath = normalizedPath.substring(1);
-    }
-    
-    // 3. Comparar con los assets precacheados
-    const isAppShellRequest = appShellAssets.some(asset => {
-        // Normalizar el asset precacheado (ej: './index.html' -> 'index.html', o si es la raíz, './')
-        const assetForComparison = (asset === './') ? asset : asset.startsWith('./') ? asset.substring(2) : asset;
-        
-        return normalizedPath === assetForComparison;
-    });
-
-    // -------------------------------------------------------------------------
-    
-    // 1. Manejo del App Shell (Cache Only)
     if (isAppShellRequest) {
         event.respondWith(
-            // Intentamos hacer match con la Request URL original (que contiene /onlyCache/), 
-            // que es lo que el navegador pasa al Service Worker.
             caches.match(event.request)
                 .then(response => {
-                    if (response) {
-                        console.log('[SW] App Shell desde cache:', requestUrl.pathname);
-                        return response;
-                    }
-                    
-                    // Si falla el match con la URL completa, el problema puede ser cómo se precacheó.
-                    // En ese caso, se necesita un nuevo precacheo con las URLs correctas.
-                    // Por ahora, devolvemos un error para indicar que el activo precacheado falló.
-                    console.error('[SW] FALLO: No se encontró App Shell en cache para:', requestUrl.pathname);
-                    return new Response('App Shell Missing', { status: 500 });
+                    console.log('[SW] App Shell desde cache:', requestUrl.pathname);
+                    return response || new Response('App Shell Missing', { status: 500 });
                 })
         );
         return;
     }
 
-    // 2. Manejo de la API (Network, luego Cache, con Fallback JSON) - SIN CAMBIOS AQUÍ
     if (requestUrl.host.includes('thecocktaildb.com') && requestUrl.pathname.includes('/search.php')) {
         event.respondWith(
             fetch(event.request)
@@ -68,18 +75,19 @@ self.addEventListener('fetch', event => {
                         throw new Error('Respuesta inválida o CORS bloqueado');
                     }
 
+                    
                     const clonedResp = response.clone();
                     caches.open(DYNAMIC_CACHE).then(cache => cache.put(event.request, clonedResp));
 
-                    console.log('[SW] Respuesta API guardada en cache dinámica.');
+                    console.log('[SW] Respuesta guardada en cache dinámica.');
                     return response;
                 })
                 .catch(err => {
                     console.warn('[SW] Error de red o sin conexión:', err);
-                    return caches.match(event.request) 
+                    return caches.match(event.request)
                         .then(cachedResp => {
                             if (cachedResp) {
-                                console.log('[SW] Devolviendo respuesta cacheada de la API.');
+                                console.log('[SW] Devolviendo respuesta cacheada.');
                                 return cachedResp;
                             } else {
                                 console.log('[SW] Devolviendo JSON de fallback.');
@@ -92,8 +100,7 @@ self.addEventListener('fetch', event => {
         );
         return;
     }
-    
-    // 3. Manejo de otros assets (Cache, luego Network con Cache Dinámica) - SIN CAMBIOS AQUÍ
+
     event.respondWith(
         caches.match(event.request)
             .then(response => {
